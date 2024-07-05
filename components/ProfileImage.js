@@ -1,102 +1,98 @@
-import React, { useState } from 'react'
-import {
-	ActivityIndicator,
-	Image,
-	StyleSheet,
-	Text,
-	TouchableOpacity,
-	View
-} from 'react-native'
-import { FontAwesome } from '@expo/vector-icons'
+import React, { useState } from  'react';
+import { ActivityIndicator, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { FontAwesome } from '@expo/vector-icons';
 
-import userImage from '../assets/images/userImage.jpeg'
-import colors from '../constants/colors'
-import { launchImagePicker, uploadImageAsync } from '../utils/imagePickerHelper'
-import { updateSignedInUserData } from '../utils/actions/authActions'
-import { useDispatch } from 'react-redux'
-import { updateLoggedInUserData } from '../store/authSlice'
+import userImage from '../assets/images/userImage.jpeg';
+import colors from '../constants/colors';
+import { launchImagePicker, uploadImageAsync } from '../utils/imagePickerHelper';
+import { updateSignedInUserData } from '../utils/actions/authActions';
+import { useDispatch } from 'react-redux';
+import { updateLoggedInUserData } from '../store/authSlice';
 
 const ProfileImage = props => {
-	const dispatch = useDispatch()
+    const dispatch = useDispatch();
 
-	const source = props.uri ? { uri: props.uri } : userImage
+    const source = props.uri ?  { uri: props.uri } : userImage;
 
-	const [image, setImage] = useState(source)
-	const [isLoading, setIsLoading] = useState(false)
+    const [image, setImage] = useState(source);
+    const [isLoading, setIsLoading] = useState(false);
 
-	const userId = props.userId
+    const showEditButton = props.showEditButton && props.showEditButton === true;
 
-	const pickImage = async () => {
-		try {
-			const tempUri = await launchImagePicker()
-			console.log(tempUri)
-			if (!tempUri) return
+    const userId = props.userId;
 
-			// Upload the image
-			setIsLoading(true)
-			const uploadUrl = await uploadImageAsync(tempUri)
-			setIsLoading(false)
+    const pickImage = async () => {
+        try {
+            const tempUri = await launchImagePicker();
 
-			if (!uploadUrl) {
-				throw new Error('Could not upload image')
-			}
+            if (!tempUri) return;
 
-			const newData = { profilePicture: uploadUrl }
+            // Upload the image
+            setIsLoading(true);
+            const uploadUrl = await uploadImageAsync(tempUri);
+            setIsLoading(false);
 
-			await updateSignedInUserData(userId, newData)
-			dispatch(updateLoggedInUserData({ newData }))
+            if (!uploadUrl) {
+                throw new Error("Could not upload image");
+            }
 
-			setImage({ uri: uploadUrl })
-		} catch (error) {
-			console.log(error)
-			setIsLoading(false)
-		}
-	}
+            const newData = { profilePicture: uploadUrl };
 
-	return (
-		<TouchableOpacity onPress={pickImage}>
-			{isLoading ? (
-				<View
-					height={props.size}
-					width={props.size}
-					style={styles.loadingContainer}>
-					<ActivityIndicator size={'small'} color={colors.primary} />
-				</View>
-			) : (
-				<Image
-					style={{
-						...styles.image,
-						...{ width: props.size, height: props.size }
-					}}
-					source={image}
-				/>
-			)}
+            await updateSignedInUserData(userId, newData);
+            dispatch(updateLoggedInUserData({ newData }));
 
-			<View style={styles.editIconContainer}>
-				<FontAwesome name="pencil" size={15} color="black" />
-			</View>
-		</TouchableOpacity>
-	)
-}
+            setImage({ uri: uploadUrl });
+        }
+        catch (error) {
+            console.log(error);
+            setIsLoading(false);
+        }
+    }
+
+    const Container = showEditButton ? TouchableOpacity : View;
+
+    return (
+        <Container onPress={pickImage}>
+
+            {
+                isLoading ?
+                <View height={props.size} width={props.size} style={styles.loadingContainer}>
+                    <ActivityIndicator size={'small'} color={colors.primary} />
+                </View> :
+                <Image
+                    style={{ ...styles.image, ...{ width: props.size, height: props.size } }}
+                    source={image}/>
+            }
+
+            {
+                showEditButton && !isLoading &&
+                <View style={styles.editIconContainer}>
+                    <FontAwesome name="pencil" size={15} color="black" />
+                </View>
+            }
+
+        </Container>
+    )
+};
 
 const styles = StyleSheet.create({
-	image: {
-		borderRadius: 50,
-		borderColor: colors.grey,
-		borderWidth: 1
-	},
-	editIconContainer: {
-		position: 'absolute',
-		bottom: 0,
-		right: 0,
-		backgroundColor: colors.lightGrey,
-		borderRadius: 20,
-		padding: 8
-	},
-	loadingContainer: {
-		justifyContent: 'center',
-		alignItems: 'center'
-	}
+    image: {
+        borderRadius: 50,
+        borderColor: colors.grey,
+        borderWidth: 1
+    },
+    editIconContainer: {
+        position: 'absolute',
+        bottom: 0,
+        right: 0,
+        backgroundColor: colors.lightGrey,
+        borderRadius: 20,
+        padding: 8
+    },
+    loadingContainer: {
+        justifyContent: 'center',
+        alignItems: 'center'
+    }
 })
 
-export default ProfileImage
+export default ProfileImage;
