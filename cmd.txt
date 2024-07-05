@@ -1,0 +1,42 @@
+npx create-expo-app@latest
+expo init projectName
+
+-------install splash-screen--------
+npx expo i expo-splash-screen
+
+-------install navigation --------
+npm install @react-navigation/native
+npx expo install react-native-screens react-native-safe-area-context
+
+-------install stack navigation --------
+npm install @react-navigation/stack
+npx expo install react-native-gesture-handler
+import 'react-native-gesture-handler';
+
+-------install tabs navigation --------
+npm install @react-navigation/bottom-tabs
+
+---- install vector icons --------
+expo install @expo/vector-icons
+
+
+npm install --save validate.js
+
+npm install @react-native-async-storage/async-storage
+
+npm install @reduxjs/toolkit@latest
+
+--------------for apk ------------
+
+npm install --global eas-cli
+eas init --id ac17c640-d495-4f8b-93dc-c41331784e0b
+eas build:configure
+eas build -p android --profile preview
+
+
+/// update dependancies
+npm install -g npm-check-updates
+ncu
+ncu -u
+npm install
+
