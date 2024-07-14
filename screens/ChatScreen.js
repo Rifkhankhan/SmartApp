@@ -20,12 +20,14 @@ import { useSelector } from "react-redux";
 import PageContainer from "../components/PageContainer";
 import Bubble from "../components/Bubble";
 import { createChat, sendTextMessage } from "../utils/actions/chatActions";
+import ReplyTo from "../components/ReplyTo";
 
 const ChatScreen = (props) => {
   const [chatUsers, setChatUsers] = useState([]);
   const [messageText, setMessageText] = useState("");
   const [chatId, setChatId] = useState(props.route?.params?.chatId);
   const [errorBannerText, setErrorBannerText] = useState("");
+  const [replyingTo, setReplyingTo] = useState();
 
   const userData = useSelector(state => state.auth.userData);
   const storedUsers = useSelector(state => state.users.storedUsers);
@@ -76,9 +78,10 @@ const ChatScreen = (props) => {
         setChatId(id);
       }
 
-      await sendTextMessage(chatId, userData.userId, messageText);
+      await sendTextMessage(chatId, userData.userId, messageText, replyingTo && replyingTo.key);
 
       setMessageText("");
+      setReplyingTo(null);
     } catch (error) {
       console.log(error);
       setErrorBannerText("Message failed to send");
@@ -121,6 +124,12 @@ const ChatScreen = (props) => {
                   return <Bubble
                             type={messageType}
                             text={message.text}
+                            messageId={message.key}
+                            userId={userData.userId}
+                            chatId={chatId}
+                            date={message.sentAt}
+                            setReply={() => setReplyingTo(message)}
+                            replyingTo={message.replyTo && chatMessages.find(i => i.key === message.replyTo)}
                           />
                 }}
               />
@@ -128,6 +137,16 @@ const ChatScreen = (props) => {
 
 
           </PageContainer>
+
+          {
+            replyingTo &&
+            <ReplyTo
+              text={replyingTo.text}
+              user={storedUsers[replyingTo.sentBy]}
+              onCancel={() => setReplyingTo(null)}
+            />
+          }
+
         </ImageBackground>
 
         <View style={styles.inputContainer}>
